@@ -1,23 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import React, { useState, useEffect } from "react";
+import LineChart from "./components/LineChart";
+import MapView from "./components/MapView";
 
 function App() {
+  const [countryInfo, setCountryInfo] = useState({});
+  const mapCenter = { lat: 34.80746, lng: -40.4796 };
+  const [mapCountries, setMapCountries] = useState([]);
+
+  useEffect(() => {
+    fetch("https://disease.sh/v3/covid-19/all")
+      .then((response) => response.json())
+      .then((data) => {
+        setCountryInfo(data);
+      });
+  }, []);
+
+  useEffect(() => {
+    const getCountriesData = async () => {
+      await fetch("https://disease.sh/v3/covid-19/countries")
+        .then((response) => response.json())
+        .then((data) => {
+          setMapCountries(data);
+        });
+    };
+    getCountriesData();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="chartContainer">
+        <div className="chart">
+          <LineChart />
+        </div>
+      </div>
+      <h2 class="mapHeader">Covid Map View</h2>
+      <div className="map">
+        <MapView countries={mapCountries} center={mapCenter} />
+      </div>
     </div>
   );
 }
